@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import router from './routes'
 import cors from '@koa/cors';
+import mainRouter from './routes/main_router'
 
 dotenv.config();
 
@@ -32,6 +33,8 @@ app.use(cors({
 app.use(bodyParser());
 app.use(json());
 app.use(router.routes()).use(router.allowedMethods());
+app.use(mainRouter.routes());
+app.use(mainRouter.allowedMethods());
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
