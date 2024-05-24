@@ -1,12 +1,14 @@
 import React from 'react';
-import ExampleComponent from './components/ExampleComponent';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import AssetsPage from './pages/AssetsPage';
 
 const App: React.FC = () => {
     return (
-        <div>
-            <h1>Welcome to the React & Vite App</h1>
-            <ExampleComponent />
-        </div>
+        <Router>
+            <Routes>
+                <Route path="/" element={<AssetsPage />} />
+            </Routes>
+        </Router>
     );
 };
 
