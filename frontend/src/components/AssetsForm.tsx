@@ -1,16 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
 import { fetchAssets } from '../services/api';
-import { Asset, EmissionDetail } from '../types/types';
+import { Asset, Emission, EmissionDetail } from '../types/types';
 import BarChart from './BarChart';
-import { CSVLink } from 'react-csv';
+import AssetsTable from './AssetsTable';
+import { getNames, getCodeList } from 'country-list';
+
+const sectorsOptions = [
+    { value: 'power', label: 'Power' },
+    { value: 'transport', label: 'Transport' },
+    { value: 'manufacturing', label: 'Manufacturing' },
+    // Add more sectors as needed
+];
+
+const countriesOptions = getNames().map(name => ({ value: getCodeList()[name], label: name }));
 
 const AssetsForm = () => {
     const [formData, setFormData] = useState({
         limit: 100,
         year: 2022,
         offset: 0,
-        countries: 'USA',
-        sectors: 'power',
+        countries: [],
+        sectors: '',
         subsectors: '',
         continents: '',
         groups: '',
@@ -20,11 +31,26 @@ const AssetsForm = () => {
     const [data, setData] = useState<Asset[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [chartData, setChartData] = useState<{ country: string; co2: number }[]>([]);
+    const [chartTitle, setChartTitle] = useState<string>('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSectorChange = (selectedOption: any) => {
+        setFormData({
+            ...formData,
+            sectors: selectedOption ? selectedOption.value : '',
+        });
+    };
+
+    const handleCountriesChange = (selectedOptions: any) => {
+        setFormData({
+            ...formData,
+            countries: selectedOptions ? selectedOptions.map((option: any) => option.value) : [],
         });
     };
 
@@ -34,6 +60,7 @@ const AssetsForm = () => {
             const assets = await fetchAssets(formData);
             setData(assets);
             setError(null);
+            setChartTitle(`Countries: ${formData.countries.join(', ')}, Year: ${formData.year}, Sector: ${formData.sectors}, Emissions: CO2`);
         } catch (error: any) {
             console.error('Error fetching assets:', error);
             setError(error.message);
@@ -47,7 +74,7 @@ const AssetsForm = () => {
 
             data.forEach((asset) => {
                 const country = asset.Country;
-                asset.Emissions.forEach((emission) => {
+                asset.Emissions.forEach((emission: Emission) => {
                     Object.values(emission).forEach((details: EmissionDetail[]) => {
                         details.forEach((detail: EmissionDetail) => {
                             if (detail.co2 !== null && detail.co2 !== undefined) {
@@ -77,9 +104,9 @@ const AssetsForm = () => {
     const prepareCSVData = () => {
         const csvData: any[] = [];
         data.forEach((asset) => {
-            asset.Emissions.forEach((emission) => {
+            asset.Emissions.forEach((emission: Emission) => {
                 Object.entries(emission).forEach(([year, details]) => {
-                    details.forEach((detail: EmissionDetail) => {
+                    (details as EmissionDetail[]).forEach((detail: EmissionDetail) => {
                         csvData.push({
                             ID: asset.Id,
                             Name: asset.Name,
@@ -109,142 +136,129 @@ const AssetsForm = () => {
     };
 
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
+        <div className="p-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Limit:
-                        <input type="number" name="limit" value={formData.limit} onChange={handleChange} />
+                        <input
+                            type="number"
+                            name="limit"
+                            value={formData.limit}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Year:
-                        <input type="number" name="year" value={formData.year} onChange={handleChange} />
+                        <input
+                            type="number"
+                            name="year"
+                            value={formData.year}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Offset:
-                        <input type="number" name="offset" value={formData.offset} onChange={handleChange} />
+                        <input
+                            type="number"
+                            name="offset"
+                            value={formData.offset}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Countries:
-                        <input type="text" name="countries" value={formData.countries} onChange={handleChange} />
+                        <Select
+                            isMulti
+                            name="countries"
+                            options={countriesOptions}
+                            className="basic-multi-select mt-1"
+                            classNamePrefix="select"
+                            onChange={handleCountriesChange}
+                        />
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Sectors:
-                        <input type="text" name="sectors" value={formData.sectors} onChange={handleChange} />
+                        <Select
+                            name="sectors"
+                            options={sectorsOptions}
+                            className="basic-single mt-1"
+                            classNamePrefix="select"
+                            onChange={handleSectorChange}
+                        />
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Subsectors:
-                        <input type="text" name="subsectors" value={formData.subsectors} onChange={handleChange} />
+                        <input
+                            type="text"
+                            name="subsectors"
+                            value={formData.subsectors}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Continents:
-                        <input type="text" name="continents" value={formData.continents} onChange={handleChange} />
+                        <input
+                            type="text"
+                            name="continents"
+                            value={formData.continents}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Groups:
-                        <input type="text" name="groups" value={formData.groups} onChange={handleChange} />
+                        <input
+                            type="text"
+                            name="groups"
+                            value={formData.groups}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
                     </label>
                 </div>
                 <div>
-                    <label>
+                    <label className="block text-sm font-medium text-gray-700">
                         Admin ID:
-                        <input type="number" name="adminId" value={formData.adminId} onChange={handleChange} />
+                        <input
+                            type="number"
+                            name="adminId"
+                            value={formData.adminId}
+                            onChange={handleChange}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        />
                     </label>
                 </div>
-                <button type="submit">Fetch Assets</button>
+                <button
+                    type="submit"
+                    className="mt-4 w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                    Fetch Assets
+                </button>
             </form>
-            {error && <p>Error: {error}</p>}
+            {error && <p className="mt-4 text-red-600">{error}</p>}
             {data.length > 0 && (
                 <>
-                    <BarChart data={chartData} />
-                    <div style={{ maxHeight: '400px', overflowY: 'scroll', marginTop: '20px' }}>
-                        <CSVLink
-                            data={prepareCSVData()}
-                            filename={`assets_data_${formData.year}.csv`}
-                            className="btn btn-primary"
-                            style={{ marginBottom: '10px' }}
-                        >
-                            Export CSV
-                        </CSVLink>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Country</th>
-                                    <th>Sector</th>
-                                    <th>Asset Type</th>
-                                    <th>Reporting Entity</th>
-                                    <th>Year</th>
-                                    <th>Activity</th>
-                                    <th>Activity Units</th>
-                                    <th>Capacity</th>
-                                    <th>Capacity Factor</th>
-                                    <th>Capacity Units</th>
-                                    <th>Emissions Factor</th>
-                                    <th>Emissions Factor Units</th>
-                                    <th>CO2</th>
-                                    <th>CH4</th>
-                                    <th>N2O</th>
-                                    <th>CO2e 20yr</th>
-                                    <th>CO2e 100yr</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data.map((asset) => (
-                                    <React.Fragment key={asset.Id}>
-                                        {asset.Emissions.map((emission) =>
-                                            Object.entries(emission).map(([year, emissionArray]) => (
-                                                <React.Fragment key={year}>
-                                                    {emissionArray.map((detail: EmissionDetail, index) => (
-                                                        <tr key={index}>
-                                                            {index === 0 && (
-                                                                <>
-                                                                    <td rowSpan={emissionArray.length}>{asset.Id}</td>
-                                                                    <td rowSpan={emissionArray.length}>{asset.Name}</td>
-                                                                    <td rowSpan={emissionArray.length}>{asset.Country}</td>
-                                                                    <td rowSpan={emissionArray.length}>{asset.Sector}</td>
-                                                                    <td rowSpan={emissionArray.length}>{asset.AssetType}</td>
-                                                                    <td rowSpan={emissionArray.length}>{asset.ReportingEntity}</td>
-                                                                </>
-                                                            )}
-                                                            <td>{year}</td>
-                                                            <td>{detail.Activity !== null ? detail.Activity : 'N/A'}</td>
-                                                            <td>{detail.ActivityUnits !== null ? detail.ActivityUnits : 'N/A'}</td>
-                                                            <td>{detail.Capacity !== null ? detail.Capacity : 'N/A'}</td>
-                                                            <td>{detail.CapacityFactor !== null ? detail.CapacityFactor : 'N/A'}</td>
-                                                            <td>{detail.CapacityUnits !== null ? detail.CapacityUnits : 'N/A'}</td>
-                                                            <td>{detail.EmissionsFactor !== null ? detail.EmissionsFactor : 'N/A'}</td>
-                                                            <td>{detail.EmissionsFactorUnits !== null ? detail.EmissionsFactorUnits : 'N/A'}</td>
-                                                            <td>{detail.co2 !== null ? detail.co2 : 'N/A'}</td>
-                                                            <td>{detail.ch4 !== null ? detail.ch4 : 'N/A'}</td>
-                                                            <td>{detail.n2o !== null ? detail.n2o : 'N/A'}</td>
-                                                            <td>{detail.co2e_20yr !== null ? detail.co2e_20yr : 'N/A'}</td>
-                                                            <td>{detail.co2e_100yr !== null ? detail.co2e_100yr : 'N/A'}</td>
-                                                        </tr>
-                                                    ))}
-                                                </React.Fragment>
-                                            ))
-                                        )}
-                                    </React.Fragment>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <BarChart data={chartData} title={chartTitle} />
+                    <AssetsTable data={data} prepareCSVData={prepareCSVData} />
                 </>
             )}
         </div>
