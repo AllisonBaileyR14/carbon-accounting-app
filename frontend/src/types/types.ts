@@ -1,5 +1,5 @@
 export interface EmissionDetail {
-    Activity: string | null;
+    Activity: number | null;
     ActivityUnits: string | null;
     Capacity: number | null;
     CapacityFactor: number | null;
@@ -59,7 +59,7 @@ export interface Asset {
     AssetType: string;
     ReportingEntity: string;
     Emissions: Emission[];
-    Owners: Owner[];
+    Owners: Owner[] | null;
     Confidence: Confidence[];
     Centroid: {
         Geometry: [number, number];

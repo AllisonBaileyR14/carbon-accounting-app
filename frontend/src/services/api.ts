@@ -1,37 +1,46 @@
 import axios from 'axios';
-import { Asset, AssetResponse } from '../types/types';
+import { AssetResponse, Asset, EmissionDetail } from '../types/types';
 
-// Create an instance of Axios with default configurations
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL, // Use the VITE_API_URL environment variable
-    timeout: 10000, // Request timeout in milliseconds
+    baseURL: import.meta.env.VITE_API_URL,
+    timeout: 10000,
 });
 
-// Utility function to remove empty fields from the query params
-const removeEmptyFields = (params: any) => {
-    return Object.keys(params)
-        .filter((key) => params[key] !== '' && params[key] !== null && params[key] !== undefined)
-        .reduce((obj, key) => {
-            obj[key] = params[key];
-            return obj;
-        }, {} as any);
+const filterParams = (params: any) => {
+    return Object.fromEntries(Object.entries(params).filter(([_, v]) => v != null && v !== ''));
 };
 
-// API call to fetch assets data
 export const fetchAssets = async (params: any): Promise<Asset[]> => {
     try {
-        const filteredParams = removeEmptyFields(params);
-        console.log('Request Params:', filteredParams);
-        const response = await api.get<AssetResponse>('/api/emissions-source/assets', { params: filteredParams });
-        return response.data.assets;
+        const filteredParams = filterParams(params);
+        const response = await api.get<AssetResponse>('/api/emissions-source/assets', {
+            params: filteredParams,
+        });
+
+        return response.data.assets.map(asset => ({
+            ...asset,
+            Emissions: asset.Emissions.map(emission => {
+                const newEmission: { [year: string]: EmissionDetail[] } = {};
+                Object.keys(emission).forEach(year => {
+                    newEmission[year] = (emission[year] as EmissionDetail[]).map(detail => ({
+                        ...detail,
+                        Activity: detail.Activity !== null ? Number(detail.Activity) : null,
+                        Capacity: detail.Capacity !== null ? Number(detail.Capacity) : null,
+                        CapacityFactor: detail.CapacityFactor !== null ? Number(detail.CapacityFactor) : null,
+                        EmissionsFactor: detail.EmissionsFactor !== null ? Number(detail.EmissionsFactor) : null,
+                        co2: detail.co2 !== undefined ? Number(detail.co2) : undefined,
+                        ch4: detail.ch4 !== undefined ? Number(detail.ch4) : undefined,
+                        n2o: detail.n2o !== undefined ? Number(detail.n2o) : undefined,
+                        co2e_20yr: detail.co2e_20yr !== undefined ? Number(detail.co2e_20yr) : undefined,
+                        co2e_100yr: detail.co2e_100yr !== undefined ? Number(detail.co2e_100yr) : undefined,
+                    }));
+                });
+                return newEmission;
+            }),
+        }));
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('Axios error fetching assets:', error);
-            console.error('Error response:', error.response?.data);
-            throw new Error(error.response?.data?.message || 'Failed to fetch assets');
-        } else {
-            console.error('Non-Axios error fetching assets:', error);
-        }
+        console.error('Axios error fetching assets:', error);
+        console.error('Error response:', (error as any).response?.data);
         throw error;
     }
 };
