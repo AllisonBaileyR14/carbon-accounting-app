@@ -15,6 +15,7 @@
     "axios": "^1.7.2",
     "country-codes-list": "^1.6.11",
     "country-list": "^2.3.0",
+    "country-list-js": "^3.1.8",
     "d3": "^7.9.0",
     "dotenv": "^16.4.5",
     "prop-types": "^15.8.1",

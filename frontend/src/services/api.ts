@@ -1,28 +1,33 @@
 import axios from 'axios';
-import { AssetResponse, Asset, EmissionDetail } from '../types/types';
+import { AssetResponse, Asset, Emission, EmissionDetail } from '../types/types';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     timeout: 10000,
 });
 
-const filterParams = (params: any) => {
-    return Object.fromEntries(Object.entries(params).filter(([_, v]) => v != null && v !== ''));
+const cleanParams = (params: any) => {
+    const cleanedParams: any = {};
+    for (const key in params) {
+        if (params[key] !== null && params[key] !== '' && params[key] !== undefined) {
+            cleanedParams[key] = params[key];
+        }
+    }
+    return cleanedParams;
 };
 
 export const fetchAssets = async (params: any): Promise<Asset[]> => {
     try {
-        const filteredParams = filterParams(params);
+        const cleanedParams = cleanParams(params);
         const response = await api.get<AssetResponse>('/api/emissions-source/assets', {
-            params: filteredParams,
+            params: cleanedParams,
         });
-
         return response.data.assets.map(asset => ({
             ...asset,
-            Emissions: asset.Emissions.map(emission => {
-                const newEmission: { [year: string]: EmissionDetail[] } = {};
-                Object.keys(emission).forEach(year => {
-                    newEmission[year] = (emission[year] as EmissionDetail[]).map(detail => ({
+            Emissions: asset.Emissions?.map(emission => ({
+                ...emission,
+                ...Object.keys(emission).reduce((acc, year) => {
+                    acc[year] = (emission[year] as EmissionDetail[]).map(detail => ({
                         ...detail,
                         Activity: detail.Activity !== null ? Number(detail.Activity) : null,
                         Capacity: detail.Capacity !== null ? Number(detail.Capacity) : null,
@@ -34,9 +39,9 @@ export const fetchAssets = async (params: any): Promise<Asset[]> => {
                         co2e_20yr: detail.co2e_20yr !== undefined ? Number(detail.co2e_20yr) : undefined,
                         co2e_100yr: detail.co2e_100yr !== undefined ? Number(detail.co2e_100yr) : undefined,
                     }));
-                });
-                return newEmission;
-            }),
+                    return acc;
+                }, {} as Emission),
+            })) ?? [],
         }));
     } catch (error) {
         console.error('Axios error fetching assets:', error);

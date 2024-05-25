@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import Select from 'react-select';
+import Select, { MultiValue, ActionMeta } from 'react-select';
 import { fetchAssets } from '../services/api';
 import { Asset, Emission, EmissionDetail } from '../types/types';
 import BarChart from './BarChart';
 import AssetsTable from './AssetsTable';
-import { getNames, getCodeList } from 'country-list';
+import country from 'country-list-js';
 
+interface CountryOption {
+    value: string;
+    label: string;
+}
+
+// Define sectors options
 const sectorsOptions = [
     { value: 'power', label: 'Power' },
     { value: 'transport', label: 'Transport' },
@@ -13,14 +19,36 @@ const sectorsOptions = [
     // Add more sectors as needed
 ];
 
-const countriesOptions = getNames().map(name => ({ value: getCodeList()[name], label: name }));
+// Function to generate country options with debugging
+const generateCountryOptions = (): CountryOption[] => {
+    const names = country.names();
+    console.log('Country names:', names); // Log country names for debugging
+
+    const options = names.map(name => {
+        const countryInfo = country.findByName(name);
+        console.log(`Country info for ${name}:`, countryInfo); // Log each country's info
+
+        if (countryInfo && countryInfo.code && countryInfo.code.iso3) {
+            return {
+                value: countryInfo.code.iso3,
+                label: name
+            };
+        }
+        return null;
+    }).filter(option => option !== null) as CountryOption[];
+
+    console.log('Generated country options:', options); // Logging the generated options
+    return options;
+};
+
+const countriesOptions = generateCountryOptions();
 
 const AssetsForm = () => {
     const [formData, setFormData] = useState({
         limit: 100,
         year: 2022,
         offset: 0,
-        countries: [],
+        countries: [] as CountryOption[],
         sectors: '',
         subsectors: '',
         continents: '',
@@ -47,20 +75,24 @@ const AssetsForm = () => {
         });
     };
 
-    const handleCountriesChange = (selectedOptions: any) => {
+    const handleCountriesChange = (selectedOptions: MultiValue<CountryOption>, actionMeta: ActionMeta<CountryOption>) => {
         setFormData({
             ...formData,
-            countries: selectedOptions ? selectedOptions.map((option: any) => option.value) : [],
+            countries: selectedOptions ? selectedOptions as CountryOption[] : [],
         });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const assets = await fetchAssets(formData);
+            const queryData = {
+                ...formData,
+                countries: formData.countries.map(country => country.value).join(','), // Convert to comma-separated ISO3 codes
+            };
+            const assets = await fetchAssets(queryData);
             setData(assets);
             setError(null);
-            setChartTitle(`Countries: ${formData.countries.join(', ')}, Year: ${formData.year}, Sector: ${formData.sectors}, Emissions: CO2`);
+            setChartTitle(`Countries: ${formData.countries.map(c => c.label).join(', ')}, Year: ${queryData.year}, Sector: ${queryData.sectors}, Emissions: CO2`);
         } catch (error: any) {
             console.error('Error fetching assets:', error);
             setError(error.message);
@@ -81,7 +113,7 @@ const AssetsForm = () => {
                                 if (!countryCO2Map[country]) {
                                     countryCO2Map[country] = 0;
                                 }
-                                console.log(`Adding CO2 for ${country}: ${detail.co2}`);
+
                                 countryCO2Map[country] += detail.co2;
                             }
                         });
@@ -94,7 +126,6 @@ const AssetsForm = () => {
                 co2,
             }));
 
-            console.log('Aggregated chart data:', chartDataArray);
             setChartData(chartDataArray);
         };
 
@@ -183,7 +214,10 @@ const AssetsForm = () => {
                             options={countriesOptions}
                             className="basic-multi-select mt-1"
                             classNamePrefix="select"
+                            value={formData.countries}
                             onChange={handleCountriesChange}
+                            menuPortalTarget={document.body}
+                            styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
                         />
                     </label>
                 </div>

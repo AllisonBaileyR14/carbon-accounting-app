@@ -59,7 +59,7 @@ export interface Asset {
     AssetType: string;
     ReportingEntity: string;
     Emissions: Emission[];
-    Owners: Owner[] | null;
+    Owners: Owner[];
     Confidence: Confidence[];
     Centroid: {
         Geometry: [number, number];
