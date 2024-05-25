@@ -1,0 +1,212 @@
+[
+    {
+        "sector": "power",
+        "sub_sector": "electricity-generation",
+        "emissions_source_definition": "Power plant"
+    },
+    {
+        "sector": "manufacturing",
+        "sub_sector": "steel",
+        "emissions_source_definition": "Steel plant"
+    },
+    {
+        "sector": "manufacturing",
+        "sub_sector": "cement",
+        "emissions_source_definition": "Cement plant"
+    },
+    {
+        "sector": "manufacturing",
+        "sub_sector": "aluminum",
+        "emissions_source_definition": "Aluminum plant"
+    },
+    {
+        "sector": "manufacturing",
+        "sub_sector": "pulp-and-paper",
+        "emissions_source_definition": "Pulp and paper plant"
+    },
+    {
+        "sector": "manufacturing",
+        "sub_sector": "chemicals",
+        "emissions_source_definition": "Chemicals plant"
+    },
+    {
+        "sector": "transportation",
+        "sub_sector": "domestic-shipping-ship",
+        "emissions_source_definition": "Ship"
+    },
+    {
+        "sector": "transportation",
+        "sub_sector": "international-shipping-ship",
+        "emissions_source_definition": "Ship"
+    },
+    {
+        "sector": "transportation",
+        "sub_sector": "domestic-shipping",
+        "emissions_source_definition": "Port"
+    },
+    {
+        "sector": "transportation",
+        "sub_sector": "international-shipping",
+        "emissions_source_definition": "Port"
+    },
+    {
+        "sector": "transportation",
+        "sub_sector": "domestic-aviation",
+        "emissions_source_definition": "Airport"
+    },
+    {
+        "sector": "transportation",
+        "sub_sector": "international-aviation",
+        "emissions_source_definition": "Airport"
+    },
+    {
+        "sector": "transportation",
+        "sub_sector": "road-transportation",
+        "emissions_source_definition": "Urban area"
+    },
+    {
+        "sector": "transportation",
+        "sub_sector": "road-transportation-road-segment",
+        "emissions_source_definition": "Road segment"
+    },
+    {
+        "sector": "fossil-fuel-operations",
+        "sub_sector": "oil-and-gas-production-and-transport",
+        "emissions_source_definition": "Field"
+    },
+    {
+        "sector": "fossil-fuel-operations",
+        "sub_sector": "oil-and-gas-production-and-transport-sub-field",
+        "emissions_source_definition": "Sub-field"
+    },
+    {
+        "sector": "fossil-fuel-operations",
+        "sub_sector": "oil-and-gas-refining",
+        "emissions_source_definition": "Refinery"
+    },
+    {
+        "sector": "manufacturing",
+        "sub_sector": "petrochemicals",
+        "emissions_source_definition": "Petrochemical plant"
+    },
+    {
+        "sector": "fossil-fuel-operations",
+        "sub_sector": "coal-mining",
+        "emissions_source_definition": "Coal mine"
+    },
+    {
+        "sector": "mineral-extraction",
+        "sub_sector": "bauxite-mining",
+        "emissions_source_definition": "Bauxite mine"
+    },
+    {
+        "sector": "mineral-extraction",
+        "sub_sector": "iron-mining",
+        "emissions_source_definition": "Iron mine"
+    },
+    {
+        "sector": "mineral-extraction",
+        "sub_sector": "copper-mining",
+        "emissions_source_definition": "Copper mine"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "forest-land-clearing",
+        "emissions_source_definition": "1km by 1km resolution cleared areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "forest-land-degradation",
+        "emissions_source_definition": "1km by 1km resolution degraded areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "forest-land-fires",
+        "emissions_source_definition": "1km by 1km resolution forest burnt areas areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "shrubgrass-fires",
+        "emissions_source_definition": "1km by 1km resolution shrubgrass burnt areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "wetland-fires",
+        "emissions_source_definition": "1km by 1km resolution wetland burnt areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "removals",
+        "emissions_source_definition": "1km by 1km resolution natural areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "net-forest-land",
+        "emissions_source_definition": "1km by 1km resolution net emissions from forest land aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "net-wetland",
+        "emissions_source_definition": "1km by 1km resolution net emissions from wetlands aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "net-shrubgrass",
+        "emissions_source_definition": "1km by 1km resolution net emissions from shrub and grassland aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "agriculture",
+        "sub_sector": "cropland-fires",
+        "emissions_source_definition": "25km by 25km resolution cropland fire areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "agriculture",
+        "sub_sector": "rice-cultivation",
+        "emissions_source_definition": "10m by 10m or 500m by 500m rice cultivation areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "agriculture",
+        "sub_sector": "enteric-fermentation-cattle-feedlot",
+        "emissions_source_definition": "confined-animal-facility"
+    },
+    {
+        "sector": "agriculture",
+        "sub_sector": "manure-management-cattle-feedlot",
+        "emissions_source_definition": "confined-animal-facility"
+    },
+    {
+        "sector": "agriculture",
+        "sub_sector": "synthetic-fertilizer-application",
+        "emissions_source_definition": "4km by 4km to 10km by 10km synthetic fertilizer applied to crop areas aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "waste",
+        "sub_sector": "solid-waste-disposal",
+        "emissions_source_definition": "Solid Waste Disposal Site"
+    },
+    {
+        "sector": "waste",
+        "sub_sector": "wastewater-treatment-and-discharge",
+        "emissions_source_definition": "Wastewater Treatment Plant"
+    },
+    {
+        "sector": "forestry-and-land-use",
+        "sub_sector": "water-reservoirs",
+        "emissions_source_definition": "Water Reservoirs"
+    },
+    {
+        "sector": "manufacturing",
+        "sub_sector": "other-manufacturing",
+        "emissions_source_definition": "Other Manufacturing Plant"
+    },
+    {
+        "sector": "agriculture",
+        "sub_sector": "enteric-fermentation-cattle-pasture",
+        "emissions_source_definition": "10km by 10km cattle pasture lands aggregated to GADM levels 0, 1 and 2"
+    },
+    {
+        "sector": "agriculture",
+        "sub_sector": "manure-left-on-pasture-cattle",
+        "emissions_source_definition": "10km by 10km cattle pasture lands aggregated to GADM levels 0, 1 and 2"
+    }
+]

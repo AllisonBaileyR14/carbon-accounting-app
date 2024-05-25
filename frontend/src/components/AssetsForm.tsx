@@ -1,54 +1,103 @@
 import React, { useState, useEffect } from 'react';
-import Select, { MultiValue, ActionMeta } from 'react-select';
+import Select from 'react-select';
 import { fetchAssets } from '../services/api';
 import { Asset, Emission, EmissionDetail } from '../types/types';
 import BarChart from './BarChart';
 import AssetsTable from './AssetsTable';
 import country from 'country-list-js';
 
-interface CountryOption {
+const sectorsOptions = [
+    { value: 'power', label: 'Power' },
+    { value: 'transportation', label: 'Transportation' },
+    { value: 'manufacturing', label: 'Manufacturing' },
+    { value: 'fossil-fuel-operations', label: 'Fossil Fuel Operations' },
+    { value: 'mineral-extraction', label: 'Mineral Extraction' },
+    { value: 'forestry-and-land-use', label: 'Forestry and Land Use' },
+    { value: 'agriculture', label: 'Agriculture' },
+    { value: 'waste', label: 'Waste' },
+];
+
+interface SubSectorOption {
     value: string;
     label: string;
 }
 
-// Define sectors options
-const sectorsOptions = [
-    { value: 'power', label: 'Power' },
-    { value: 'transport', label: 'Transport' },
-    { value: 'manufacturing', label: 'Manufacturing' },
-    // Add more sectors as needed
-];
-
-// Function to generate country options with debugging
-const generateCountryOptions = (): CountryOption[] => {
-    const names = country.names();
-    console.log('Country names:', names); // Log country names for debugging
-
-    const options = names.map(name => {
-        const countryInfo = country.findByName(name);
-        console.log(`Country info for ${name}:`, countryInfo); // Log each country's info
-
-        if (countryInfo && countryInfo.code && countryInfo.code.iso3) {
-            return {
-                value: countryInfo.code.iso3,
-                label: name
-            };
-        }
-        return null;
-    }).filter(option => option !== null) as CountryOption[];
-
-    console.log('Generated country options:', options); // Logging the generated options
-    return options;
+type SubSectorsOptionsType = {
+    [key: string]: SubSectorOption[];
 };
 
-const countriesOptions = generateCountryOptions();
+const subSectorsOptions: SubSectorsOptionsType = {
+    power: [{ value: 'electricity-generation', label: 'Electricity Generation' }],
+    manufacturing: [
+        { value: 'steel', label: 'Steel' },
+        { value: 'cement', label: 'Cement' },
+        { value: 'aluminum', label: 'Aluminum' },
+        { value: 'pulp-and-paper', label: 'Pulp and Paper' },
+        { value: 'chemicals', label: 'Chemicals' },
+        { value: 'petrochemicals', label: 'Petrochemicals' },
+        { value: 'other-manufacturing', label: 'Other Manufacturing' },
+    ],
+    transportation: [
+        { value: 'domestic-shipping-ship', label: 'Domestic Shipping (Ship)' },
+        { value: 'international-shipping-ship', label: 'International Shipping (Ship)' },
+        { value: 'domestic-shipping', label: 'Domestic Shipping (Port)' },
+        { value: 'international-shipping', label: 'International Shipping (Port)' },
+        { value: 'domestic-aviation', label: 'Domestic Aviation (Airport)' },
+        { value: 'international-aviation', label: 'International Aviation (Airport)' },
+        { value: 'road-transportation', label: 'Road Transportation (Urban Area)' },
+        { value: 'road-transportation-road-segment', label: 'Road Transportation (Road Segment)' },
+    ],
+    'fossil-fuel-operations': [
+        { value: 'oil-and-gas-production-and-transport', label: 'Oil and Gas Production and Transport (Field)' },
+        { value: 'oil-and-gas-production-and-transport-sub-field', label: 'Oil and Gas Production and Transport (Sub-field)' },
+        { value: 'oil-and-gas-refining', label: 'Oil and Gas Refining (Refinery)' },
+        { value: 'coal-mining', label: 'Coal Mining (Coal Mine)' },
+    ],
+    'mineral-extraction': [
+        { value: 'bauxite-mining', label: 'Bauxite Mining' },
+        { value: 'iron-mining', label: 'Iron Mining' },
+        { value: 'copper-mining', label: 'Copper Mining' },
+    ],
+    'forestry-and-land-use': [
+        { value: 'forest-land-clearing', label: 'Forest Land Clearing' },
+        { value: 'forest-land-degradation', label: 'Forest Land Degradation' },
+        { value: 'forest-land-fires', label: 'Forest Land Fires' },
+        { value: 'shrubgrass-fires', label: 'Shrubgrass Fires' },
+        { value: 'wetland-fires', label: 'Wetland Fires' },
+        { value: 'removals', label: 'Removals' },
+        { value: 'net-forest-land', label: 'Net Forest Land' },
+        { value: 'net-wetland', label: 'Net Wetland' },
+        { value: 'net-shrubgrass', label: 'Net Shrubgrass' },
+    ],
+    agriculture: [
+        { value: 'cropland-fires', label: 'Cropland Fires' },
+        { value: 'rice-cultivation', label: 'Rice Cultivation' },
+        { value: 'enteric-fermentation-cattle-feedlot', label: 'Enteric Fermentation (Cattle Feedlot)' },
+        { value: 'manure-management-cattle-feedlot', label: 'Manure Management (Cattle Feedlot)' },
+        { value: 'synthetic-fertilizer-application', label: 'Synthetic Fertilizer Application' },
+        { value: 'enteric-fermentation-cattle-pasture', label: 'Enteric Fermentation (Cattle Pasture)' },
+        { value: 'manure-left-on-pasture-cattle', label: 'Manure Left on Pasture (Cattle)' },
+    ],
+    waste: [
+        { value: 'solid-waste-disposal', label: 'Solid Waste Disposal' },
+        { value: 'wastewater-treatment-and-discharge', label: 'Wastewater Treatment and Discharge' },
+    ],
+};
+
+const countryOptions = country.names().map(name => {
+    const countryInfo = country.findByName(name);
+    return {
+        value: countryInfo.code.iso3,
+        label: name
+    };
+}).filter(option => option.value);
 
 const AssetsForm = () => {
     const [formData, setFormData] = useState({
         limit: 100,
         year: 2022,
         offset: 0,
-        countries: [] as CountryOption[],
+        countries: [] as { value: string; label: string }[],
         sectors: '',
         subsectors: '',
         continents: '',
@@ -75,10 +124,17 @@ const AssetsForm = () => {
         });
     };
 
-    const handleCountriesChange = (selectedOptions: MultiValue<CountryOption>, actionMeta: ActionMeta<CountryOption>) => {
+    const handleCountriesChange = (selectedOptions: any) => {
         setFormData({
             ...formData,
-            countries: selectedOptions ? selectedOptions as CountryOption[] : [],
+            countries: selectedOptions ? selectedOptions : [],
+        });
+    };
+
+    const handleSubSectorChange = (selectedOption: any) => {
+        setFormData({
+            ...formData,
+            subsectors: selectedOption ? selectedOption.value : '',
         });
     };
 
@@ -211,7 +267,7 @@ const AssetsForm = () => {
                         <Select
                             isMulti
                             name="countries"
-                            options={countriesOptions}
+                            options={countryOptions}
                             className="basic-multi-select mt-1"
                             classNamePrefix="select"
                             value={formData.countries}
@@ -236,12 +292,13 @@ const AssetsForm = () => {
                 <div>
                     <label className="block text-sm font-medium text-gray-700">
                         Subsectors:
-                        <input
-                            type="text"
+                        <Select
                             name="subsectors"
-                            value={formData.subsectors}
-                            onChange={handleChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            options={formData.sectors ? subSectorsOptions[formData.sectors] || [] : []}
+                            className="basic-single mt-1"
+                            classNamePrefix="select"
+                            onChange={handleSubSectorChange}
+                            isDisabled={!formData.sectors}
                         />
                     </label>
                 </div>
