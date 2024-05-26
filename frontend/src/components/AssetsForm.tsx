@@ -3,6 +3,7 @@ import Select from 'react-select';
 import { fetchAssets } from '../services/api';
 import { Asset, Emission, EmissionDetail } from '../types/types';
 import BarChart from './BarChart';
+import PieChart from './PieChart';
 import AssetsTable from './AssetsTable';
 import country from 'country-list-js';
 
@@ -108,6 +109,7 @@ const AssetsForm = () => {
     const [data, setData] = useState<Asset[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [chartData, setChartData] = useState<{ country: string; co2: number }[]>([]);
+    const [pieChartData, setPieChartData] = useState<{ sector: string; co2: number }[]>([]);
     const [chartTitle, setChartTitle] = useState<string>('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -184,8 +186,36 @@ const AssetsForm = () => {
 
             setChartData(chartDataArray);
         };
+        const aggregateCO2BySector = () => {
+            const sectorCO2Map: { [key: string]: number } = {};
+
+            data.forEach((asset) => {
+                const sector = asset.Sector;
+                asset.Emissions.forEach((emission: Emission) => {
+                    Object.values(emission).forEach((details: EmissionDetail[]) => {
+                        details.forEach((detail: EmissionDetail) => {
+                            if (detail.co2 !== null && detail.co2 !== undefined) {
+                                if (!sectorCO2Map[sector]) {
+                                    sectorCO2Map[sector] = 0;
+                                }
+
+                                sectorCO2Map[sector] += detail.co2;
+                            }
+                        });
+                    });
+                });
+            });
+
+            const pieChartDataArray = Object.entries(sectorCO2Map).map(([sector, co2]) => ({
+                sector,
+                co2,
+            }));
+
+            setPieChartData(pieChartDataArray);
+        };
 
         aggregateCO2ByCountry();
+        aggregateCO2BySector();
     }, [data]);
 
     const prepareCSVData = () => {
@@ -349,6 +379,7 @@ const AssetsForm = () => {
             {data.length > 0 && (
                 <>
                     <BarChart data={chartData} title={chartTitle} />
+                    <PieChart data={pieChartData} width={400} height={400} />
                     <AssetsTable data={data} prepareCSVData={prepareCSVData} />
                 </>
             )}

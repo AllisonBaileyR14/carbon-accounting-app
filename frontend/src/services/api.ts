@@ -16,6 +16,21 @@ const cleanParams = (params: any) => {
     return cleanedParams;
 };
 
+const mergeEmissionDetails = (emissionDetails: EmissionDetail[]): EmissionDetail => {
+    return emissionDetails.reduce((acc, detail) => {
+        acc.Activity = detail.Activity !== null ? Number(detail.Activity) : acc.Activity;
+        acc.Capacity = detail.Capacity !== null ? Number(detail.Capacity) : acc.Capacity;
+        acc.CapacityFactor = detail.CapacityFactor !== null ? Number(detail.CapacityFactor) : acc.CapacityFactor;
+        acc.EmissionsFactor = detail.EmissionsFactor !== null ? Number(detail.EmissionsFactor) : acc.EmissionsFactor;
+        acc.co2 = detail.co2 !== undefined ? Number(detail.co2) : acc.co2;
+        acc.ch4 = detail.ch4 !== undefined ? Number(detail.ch4) : acc.ch4;
+        acc.n2o = detail.n2o !== undefined ? Number(detail.n2o) : acc.n2o;
+        acc.co2e_20yr = detail.co2e_20yr !== undefined ? Number(detail.co2e_20yr) : acc.co2e_20yr;
+        acc.co2e_100yr = detail.co2e_100yr !== undefined ? Number(detail.co2e_100yr) : acc.co2e_100yr;
+        return acc;
+    }, {} as EmissionDetail);
+};
+
 export const fetchAssets = async (params: any): Promise<Asset[]> => {
     try {
         const cleanedParams = cleanParams(params);
@@ -27,18 +42,8 @@ export const fetchAssets = async (params: any): Promise<Asset[]> => {
             Emissions: asset.Emissions?.map(emission => ({
                 ...emission,
                 ...Object.keys(emission).reduce((acc, year) => {
-                    acc[year] = (emission[year] as EmissionDetail[]).map(detail => ({
-                        ...detail,
-                        Activity: detail.Activity !== null ? Number(detail.Activity) : null,
-                        Capacity: detail.Capacity !== null ? Number(detail.Capacity) : null,
-                        CapacityFactor: detail.CapacityFactor !== null ? Number(detail.CapacityFactor) : null,
-                        EmissionsFactor: detail.EmissionsFactor !== null ? Number(detail.EmissionsFactor) : null,
-                        co2: detail.co2 !== undefined ? Number(detail.co2) : undefined,
-                        ch4: detail.ch4 !== undefined ? Number(detail.ch4) : undefined,
-                        n2o: detail.n2o !== undefined ? Number(detail.n2o) : undefined,
-                        co2e_20yr: detail.co2e_20yr !== undefined ? Number(detail.co2e_20yr) : undefined,
-                        co2e_100yr: detail.co2e_100yr !== undefined ? Number(detail.co2e_100yr) : undefined,
-                    }));
+                    const mergedDetails = mergeEmissionDetails(emission[year] as EmissionDetail[]);
+                    acc[year] = [mergedDetails];
                     return acc;
                 }, {} as Emission),
             })) ?? [],
