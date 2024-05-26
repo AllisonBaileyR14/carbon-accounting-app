@@ -4,6 +4,7 @@ import { fetchAssets } from '../../services/emissions/api';
 import { Asset, Emission, EmissionDetail } from '../../types/emissions/types';
 import BarChart from './BarChart';
 import PieChart from './PieChart';
+import TimeSeriesChart from './TimeSeriesChart';
 import AssetsTable from './AssetsTable';
 import country from 'country-list-js';
 
@@ -109,7 +110,8 @@ const AssetsForm = () => {
     const [data, setData] = useState<Asset[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [chartData, setChartData] = useState<{ country: string; co2: number }[]>([]);
-    const [pieChartData, setPieChartData] = useState<{ sector: string; co2: number }[]>([]);
+    const [pieData, setPieData] = useState<{ sector: string; co2: number }[]>([]);
+    const [timeSeriesData, setTimeSeriesData] = useState<{ year: number; country: string; co2: number }[]>([]);
     const [chartTitle, setChartTitle] = useState<string>('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -161,18 +163,34 @@ const AssetsForm = () => {
     useEffect(() => {
         const aggregateCO2ByCountry = () => {
             const countryCO2Map: { [key: string]: number } = {};
+            const sectorCO2Map: { [key: string]: number } = {};
+            const timeSeriesData: { year: number; country: string; co2: number }[] = [];
 
             data.forEach((asset) => {
                 const country = asset.Country;
+                const sector = asset.Sector;
+
                 asset.Emissions.forEach((emission: Emission) => {
-                    Object.values(emission).forEach((details: EmissionDetail[]) => {
-                        details.forEach((detail: EmissionDetail) => {
+                    Object.entries(emission).forEach(([year, details]) => {
+                        (details as EmissionDetail[]).forEach((detail: EmissionDetail) => {
                             if (detail.co2 !== null && detail.co2 !== undefined) {
                                 if (!countryCO2Map[country]) {
                                     countryCO2Map[country] = 0;
                                 }
 
                                 countryCO2Map[country] += detail.co2;
+
+                                if (!sectorCO2Map[sector]) {
+                                    sectorCO2Map[sector] = 0;
+                                }
+
+                                sectorCO2Map[sector] += detail.co2;
+
+                                timeSeriesData.push({
+                                    year: Number(year),
+                                    country,
+                                    co2: detail.co2
+                                });
                             }
                         });
                     });
@@ -184,38 +202,17 @@ const AssetsForm = () => {
                 co2,
             }));
 
-            setChartData(chartDataArray);
-        };
-        const aggregateCO2BySector = () => {
-            const sectorCO2Map: { [key: string]: number } = {};
-
-            data.forEach((asset) => {
-                const sector = asset.Sector;
-                asset.Emissions.forEach((emission: Emission) => {
-                    Object.values(emission).forEach((details: EmissionDetail[]) => {
-                        details.forEach((detail: EmissionDetail) => {
-                            if (detail.co2 !== null && detail.co2 !== undefined) {
-                                if (!sectorCO2Map[sector]) {
-                                    sectorCO2Map[sector] = 0;
-                                }
-
-                                sectorCO2Map[sector] += detail.co2;
-                            }
-                        });
-                    });
-                });
-            });
-
-            const pieChartDataArray = Object.entries(sectorCO2Map).map(([sector, co2]) => ({
+            const pieDataArray = Object.entries(sectorCO2Map).map(([sector, co2]) => ({
                 sector,
                 co2,
             }));
 
-            setPieChartData(pieChartDataArray);
+            setChartData(chartDataArray);
+            setPieData(pieDataArray);
+            setTimeSeriesData(timeSeriesData);
         };
 
         aggregateCO2ByCountry();
-        aggregateCO2BySector();
     }, [data]);
 
     const prepareCSVData = () => {
@@ -377,12 +374,13 @@ const AssetsForm = () => {
             </form>
             {error && <p className="mt-4 text-red-600">{error}</p>}
             {data.length > 0 && (
-                <>
-                    <BarChart data={chartData} title={chartTitle} />
-                    <PieChart data={pieChartData} width={400} height={400} />
-                    <AssetsTable data={data} prepareCSVData={prepareCSVData} />
-                </>
+                <div className="flex flex-wrap justify-around mt-8">
+                    <BarChart data={chartData} title={chartTitle} width={300} height={300} selectedYear={formData.year} />
+                    <PieChart data={pieData} title="CO2 Emissions by Sector" width={300} height={300} />
+                    <TimeSeriesChart data={timeSeriesData} title="Time Series of CO2 Emissions" width={300} height={300} selectedYear={formData.year} />
+                </div>
             )}
+            {data.length > 0 && <AssetsTable data={data} prepareCSVData={prepareCSVData} />}
         </div>
     );
 };

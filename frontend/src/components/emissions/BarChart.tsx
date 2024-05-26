@@ -4,9 +4,12 @@ import * as d3 from 'd3';
 interface BarChartProps {
     data: { country: string; co2: number }[];
     title: string;
+    width: number;
+    height: number;
+    selectedYear: number;
 }
 
-const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
+const BarChart: React.FC<BarChartProps> = ({ data, title, width, height, selectedYear }) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
 
     useEffect(() => {
@@ -14,8 +17,8 @@ const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
 
         const svg = d3.select(svgRef.current);
         const margin = { top: 50, right: 30, bottom: 100, left: 80 };
-        const width = 700 - margin.left - margin.right;
-        const height = 500 - margin.top - margin.bottom;
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
 
         svg.selectAll('*').remove();
 
@@ -26,18 +29,18 @@ const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
         const x = d3
             .scaleBand()
             .domain(data.map(d => d.country))
-            .range([0, width])
+            .range([0, chartWidth])
             .padding(0.1);
 
         const y = d3
             .scaleLinear()
             .domain([0, d3.max(data, d => d.co2) || 0])
             .nice()
-            .range([height, 0]);
+            .range([chartHeight, 0]);
 
         g.append('g')
             .attr('class', 'x-axis')
-            .attr('transform', `translate(0,${height})`)
+            .attr('transform', `translate(0,${chartHeight})`)
             .call(d3.axisBottom(x))
             .selectAll("text")
             .attr("transform", "rotate(-45)")
@@ -62,7 +65,7 @@ const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
             .attr('x', d => x(d.country)!)
             .attr('y', d => y(d.co2))
             .attr('width', x.bandwidth())
-            .attr('height', d => height - y(d.co2))
+            .attr('height', d => chartHeight - y(d.co2))
             .on('mouseover', (event, d) => {
                 tooltip
                     .style('display', 'block')
@@ -77,20 +80,34 @@ const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
                 tooltip.style('display', 'none');
             });
 
+        // Adding title
         svg.append('text')
-            .attr('x', (width + margin.left + margin.right) / 2)
+            .attr('x', (chartWidth + margin.left + margin.right) / 2)
             .attr('y', margin.top / 2)
             .attr('text-anchor', 'middle')
             .style('font-size', '16px')
             .style('text-decoration', 'underline')
             .text(title);
-    }, [data, title]);
+
+        // Adding a line to indicate the selected year
+        if (selectedYear) {
+            g.append('line')
+                .attr('x1', 0)
+                .attr('x2', chartWidth)
+                .attr('y1', y(selectedYear))
+                .attr('y2', y(selectedYear))
+                .attr('stroke', 'black')
+                .attr('stroke-dasharray', '4')
+                .attr('stroke-width', 2);
+        }
+
+    }, [data, title, width, height, selectedYear]);
 
     return (
         <svg
             ref={svgRef}
-            width={700}
-            height={500}
+            width={width}
+            height={height}
             style={{ marginLeft: 'auto', marginRight: 'auto', display: 'block' }}
         />
     );
