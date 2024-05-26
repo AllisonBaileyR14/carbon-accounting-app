@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
-import { fetchAssets } from '../services/api';
-import { Asset, Emission, EmissionDetail } from '../types/types';
+import { fetchAssets } from '../../services/emissions/api';
+import { Asset, Emission, EmissionDetail } from '../../types/emissions/types';
 import BarChart from './BarChart';
 import PieChart from './PieChart';
 import AssetsTable from './AssetsTable';

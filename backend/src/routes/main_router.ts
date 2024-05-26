@@ -1,5 +1,5 @@
 import Router from 'koa-router';
-import emissionsSourceRouter from './emissions_sources_route';
+import emissionsSourceRouter from './emissions/emissions_sources_route';
 
 const mainRouter = new Router();
 

@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 import axios from 'axios';
-import { AssetQueryParams, AssetResponse } from '../models/emissions_sources_model';
+import { AssetQueryParams, AssetResponse } from '../../models/emissions/emissions_sources_model';
 
 const emissionsSourceRouter = new Router();
 
