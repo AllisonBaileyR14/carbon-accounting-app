@@ -23,7 +23,7 @@ emissionsSourceRouter.get('/assets', async (ctx) => {
         const response = await axios.get<AssetResponse>('https://api.climatetrace.org/v4/assets', {
             params: queryParams,
         });
-        console.log('API Response:', response.data); // Log the API response
+        console.log('API Response:', queryParams); // Log the API response
         ctx.body = response.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {

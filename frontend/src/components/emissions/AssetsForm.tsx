@@ -8,83 +8,87 @@ import TimeSeriesChart from './TimeSeriesChart';
 import AssetsTable from './AssetsTable';
 import country from 'country-list-js';
 
-const sectorsOptions = [
-    { value: 'power', label: 'Power' },
-    { value: 'transportation', label: 'Transportation' },
-    { value: 'manufacturing', label: 'Manufacturing' },
-    { value: 'fossil-fuel-operations', label: 'Fossil Fuel Operations' },
-    { value: 'mineral-extraction', label: 'Mineral Extraction' },
-    { value: 'forestry-and-land-use', label: 'Forestry and Land Use' },
-    { value: 'agriculture', label: 'Agriculture' },
-    { value: 'waste', label: 'Waste' },
+const groupedSectorsOptions = [
+    {
+        label: 'Power',
+        options: [{ value: 'electricity-generation', label: 'Electricity Generation' }],
+    },
+    {
+        label: 'Manufacturing',
+        options: [
+            { value: 'steel', label: 'Steel' },
+            { value: 'cement', label: 'Cement' },
+            { value: 'aluminum', label: 'Aluminum' },
+            { value: 'pulp-and-paper', label: 'Pulp and Paper' },
+            { value: 'chemicals', label: 'Chemicals' },
+            { value: 'petrochemicals', label: 'Petrochemicals' },
+            { value: 'other-manufacturing', label: 'Other Manufacturing' },
+        ],
+    },
+    {
+        label: 'Transportation',
+        options: [
+            { value: 'domestic-shipping-ship', label: 'Domestic Shipping (Ship)' },
+            { value: 'international-shipping-ship', label: 'International Shipping (Ship)' },
+            { value: 'domestic-shipping', label: 'Domestic Shipping (Port)' },
+            { value: 'international-shipping', label: 'International Shipping (Port)' },
+            { value: 'domestic-aviation', label: 'Domestic Aviation (Airport)' },
+            { value: 'international-aviation', label: 'International Aviation (Airport)' },
+            { value: 'road-transportation', label: 'Road Transportation (Urban Area)' },
+            { value: 'road-transportation-road-segment', label: 'Road Transportation (Road Segment)' },
+        ],
+    },
+    {
+        label: 'Fossil Fuel Operations',
+        options: [
+            { value: 'oil-and-gas-production-and-transport', label: 'Oil and Gas Production and Transport (Field)' },
+            { value: 'oil-and-gas-production-and-transport-sub-field', label: 'Oil and Gas Production and Transport (Sub-field)' },
+            { value: 'oil-and-gas-refining', label: 'Oil and Gas Refining (Refinery)' },
+            { value: 'coal-mining', label: 'Coal Mining (Coal Mine)' },
+        ],
+    },
+    {
+        label: 'Mineral Extraction',
+        options: [
+            { value: 'bauxite-mining', label: 'Bauxite Mining' },
+            { value: 'iron-mining', label: 'Iron Mining' },
+            { value: 'copper-mining', label: 'Copper Mining' },
+        ],
+    },
+    {
+        label: 'Forestry and Land Use',
+        options: [
+            { value: 'forest-land-clearing', label: 'Forest Land Clearing' },
+            { value: 'forest-land-degradation', label: 'Forest Land Degradation' },
+            { value: 'forest-land-fires', label: 'Forest Land Fires' },
+            { value: 'shrubgrass-fires', label: 'Shrubgrass Fires' },
+            { value: 'wetland-fires', label: 'Wetland Fires' },
+            { value: 'removals', label: 'Removals' },
+            { value: 'net-forest-land', label: 'Net Forest Land' },
+            { value: 'net-wetland', label: 'Net Wetland' },
+            { value: 'net-shrubgrass', label: 'Net Shrubgrass' },
+        ],
+    },
+    {
+        label: 'Agriculture',
+        options: [
+            { value: 'cropland-fires', label: 'Cropland Fires' },
+            { value: 'rice-cultivation', label: 'Rice Cultivation' },
+            { value: 'enteric-fermentation-cattle-feedlot', label: 'Enteric Fermentation (Cattle Feedlot)' },
+            { value: 'manure-management-cattle-feedlot', label: 'Manure Management (Cattle Feedlot)' },
+            { value: 'synthetic-fertilizer-application', label: 'Synthetic Fertilizer Application' },
+            { value: 'enteric-fermentation-cattle-pasture', label: 'Enteric Fermentation (Cattle Pasture)' },
+            { value: 'manure-left-on-pasture-cattle', label: 'Manure Left on Pasture (Cattle)' },
+        ],
+    },
+    {
+        label: 'Waste',
+        options: [
+            { value: 'solid-waste-disposal', label: 'Solid Waste Disposal' },
+            { value: 'wastewater-treatment-and-discharge', label: 'Wastewater Treatment and Discharge' },
+        ],
+    },
 ];
-
-interface SubSectorOption {
-    value: string;
-    label: string;
-}
-
-type SubSectorsOptionsType = {
-    [key: string]: SubSectorOption[];
-};
-
-const subSectorsOptions: SubSectorsOptionsType = {
-    power: [{ value: 'electricity-generation', label: 'Electricity Generation' }],
-    manufacturing: [
-        { value: 'steel', label: 'Steel' },
-        { value: 'cement', label: 'Cement' },
-        { value: 'aluminum', label: 'Aluminum' },
-        { value: 'pulp-and-paper', label: 'Pulp and Paper' },
-        { value: 'chemicals', label: 'Chemicals' },
-        { value: 'petrochemicals', label: 'Petrochemicals' },
-        { value: 'other-manufacturing', label: 'Other Manufacturing' },
-    ],
-    transportation: [
-        { value: 'domestic-shipping-ship', label: 'Domestic Shipping (Ship)' },
-        { value: 'international-shipping-ship', label: 'International Shipping (Ship)' },
-        { value: 'domestic-shipping', label: 'Domestic Shipping (Port)' },
-        { value: 'international-shipping', label: 'International Shipping (Port)' },
-        { value: 'domestic-aviation', label: 'Domestic Aviation (Airport)' },
-        { value: 'international-aviation', label: 'International Aviation (Airport)' },
-        { value: 'road-transportation', label: 'Road Transportation (Urban Area)' },
-        { value: 'road-transportation-road-segment', label: 'Road Transportation (Road Segment)' },
-    ],
-    'fossil-fuel-operations': [
-        { value: 'oil-and-gas-production-and-transport', label: 'Oil and Gas Production and Transport (Field)' },
-        { value: 'oil-and-gas-production-and-transport-sub-field', label: 'Oil and Gas Production and Transport (Sub-field)' },
-        { value: 'oil-and-gas-refining', label: 'Oil and Gas Refining (Refinery)' },
-        { value: 'coal-mining', label: 'Coal Mining (Coal Mine)' },
-    ],
-    'mineral-extraction': [
-        { value: 'bauxite-mining', label: 'Bauxite Mining' },
-        { value: 'iron-mining', label: 'Iron Mining' },
-        { value: 'copper-mining', label: 'Copper Mining' },
-    ],
-    'forestry-and-land-use': [
-        { value: 'forest-land-clearing', label: 'Forest Land Clearing' },
-        { value: 'forest-land-degradation', label: 'Forest Land Degradation' },
-        { value: 'forest-land-fires', label: 'Forest Land Fires' },
-        { value: 'shrubgrass-fires', label: 'Shrubgrass Fires' },
-        { value: 'wetland-fires', label: 'Wetland Fires' },
-        { value: 'removals', label: 'Removals' },
-        { value: 'net-forest-land', label: 'Net Forest Land' },
-        { value: 'net-wetland', label: 'Net Wetland' },
-        { value: 'net-shrubgrass', label: 'Net Shrubgrass' },
-    ],
-    agriculture: [
-        { value: 'cropland-fires', label: 'Cropland Fires' },
-        { value: 'rice-cultivation', label: 'Rice Cultivation' },
-        { value: 'enteric-fermentation-cattle-feedlot', label: 'Enteric Fermentation (Cattle Feedlot)' },
-        { value: 'manure-management-cattle-feedlot', label: 'Manure Management (Cattle Feedlot)' },
-        { value: 'synthetic-fertilizer-application', label: 'Synthetic Fertilizer Application' },
-        { value: 'enteric-fermentation-cattle-pasture', label: 'Enteric Fermentation (Cattle Pasture)' },
-        { value: 'manure-left-on-pasture-cattle', label: 'Manure Left on Pasture (Cattle)' },
-    ],
-    waste: [
-        { value: 'solid-waste-disposal', label: 'Solid Waste Disposal' },
-        { value: 'wastewater-treatment-and-discharge', label: 'Wastewater Treatment and Discharge' },
-    ],
-};
 
 const countryOptions = country.names().map(name => {
     const countryInfo = country.findByName(name);
@@ -101,7 +105,6 @@ const AssetsForm = () => {
         offset: 0,
         countries: [] as { value: string; label: string }[],
         sectors: '',
-        subsectors: '',
         continents: '',
         groups: '',
         adminId: 1,
@@ -109,9 +112,9 @@ const AssetsForm = () => {
 
     const [data, setData] = useState<Asset[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [chartData, setChartData] = useState<{ country: string; co2: number }[]>([]);
+    const [chartData, setChartData] = useState<{ country: string; co2: number; sector: string; year: number }[]>([]);
     const [pieData, setPieData] = useState<{ sector: string; co2: number }[]>([]);
-    const [timeSeriesData, setTimeSeriesData] = useState<{ year: number; country: string; co2: number }[]>([]);
+    const [timeSeriesData, setTimeSeriesData] = useState<{ country: string; year: number; sector: string; co2: number }[]>([]);
     const [chartTitle, setChartTitle] = useState<string>('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -122,9 +125,10 @@ const AssetsForm = () => {
     };
 
     const handleSectorChange = (selectedOption: any) => {
+        const selectedSector = selectedOption ? selectedOption.value : '';
         setFormData({
             ...formData,
-            sectors: selectedOption ? selectedOption.value : '',
+            sectors: selectedSector,
         });
     };
 
@@ -132,13 +136,6 @@ const AssetsForm = () => {
         setFormData({
             ...formData,
             countries: selectedOptions ? selectedOptions : [],
-        });
-    };
-
-    const handleSubSectorChange = (selectedOption: any) => {
-        setFormData({
-            ...formData,
-            subsectors: selectedOption ? selectedOption.value : '',
         });
     };
 
@@ -164,56 +161,86 @@ const AssetsForm = () => {
         const aggregateCO2ByCountry = () => {
             const countryCO2Map: { [key: string]: number } = {};
             const sectorCO2Map: { [key: string]: number } = {};
-            const timeSeriesData: { year: number; country: string; co2: number }[] = [];
+            const timeSeriesMap: { [key: string]: { [key: number]: { [key: string]: number } } } = {};
 
             data.forEach((asset) => {
                 const country = asset.Country;
                 const sector = asset.Sector;
 
-                asset.Emissions.forEach((emission: Emission) => {
+                asset.Emissions.forEach((emission: { [key: string]: EmissionDetail[] }) => {
                     Object.entries(emission).forEach(([year, details]) => {
-                        (details as EmissionDetail[]).forEach((detail: EmissionDetail) => {
+                        details.forEach((detail: EmissionDetail) => {
                             if (detail.co2 !== null && detail.co2 !== undefined) {
                                 if (!countryCO2Map[country]) {
                                     countryCO2Map[country] = 0;
                                 }
-
-                                countryCO2Map[country] += detail.co2;
-
                                 if (!sectorCO2Map[sector]) {
                                     sectorCO2Map[sector] = 0;
                                 }
+                                if (!timeSeriesMap[country]) {
+                                    timeSeriesMap[country] = {};
+                                }
+                                if (!timeSeriesMap[country][+year]) {
+                                    timeSeriesMap[country][+year] = {};
+                                }
+                                if (!timeSeriesMap[country][+year][sector]) {
+                                    timeSeriesMap[country][+year][sector] = 0;
+                                }
 
+                                countryCO2Map[country] += detail.co2;
                                 sectorCO2Map[sector] += detail.co2;
-
-                                timeSeriesData.push({
-                                    year: Number(year),
-                                    country,
-                                    co2: detail.co2
-                                });
+                                timeSeriesMap[country][+year][sector] += detail.co2;
                             }
                         });
                     });
                 });
             });
 
-            const chartDataArray = Object.entries(countryCO2Map).map(([country, co2]) => ({
-                country,
-                co2,
-            }));
+            const selectedSectorLabel = formData.sectors;
 
-            const pieDataArray = Object.entries(sectorCO2Map).map(([sector, co2]) => ({
-                sector,
-                co2,
-            }));
+            const chartDataArray = Object.entries(countryCO2Map).flatMap(([country, co2]) =>
+                Object.entries(timeSeriesMap[country]).flatMap(([year, sectors]) =>
+                    Object.entries(sectors)
+                        .filter(([sector]) => sector === formData.sectors)
+                        .map(([sector, co2]) => ({
+                            country,
+                            co2,
+                            sector,
+                            year: +year
+                        }))
+                )
+            );
+
+            const selectedSectorOptions = groupedSectorsOptions.find(group =>
+                group.options.some(option => option.value === selectedSectorLabel)
+            );
+
+            const pieDataArray = selectedSectorOptions
+                ? selectedSectorOptions.options.map(({ value: sector }) => ({
+                    sector,
+                    co2: sectorCO2Map[sector] || 0,
+                }))
+                : [];
+
+            const timeSeriesDataArray = Object.entries(timeSeriesMap).flatMap(([country, years]) =>
+                Object.entries(years).flatMap(([year, sectors]) =>
+                    Object.entries(sectors)
+                        .map(([sector, co2]) => ({
+                            country,
+                            year: +year,
+                            sector,
+                            co2,
+                        }))
+                )
+            );
 
             setChartData(chartDataArray);
             setPieData(pieDataArray);
-            setTimeSeriesData(timeSeriesData);
+            setTimeSeriesData(timeSeriesDataArray);
         };
 
         aggregateCO2ByCountry();
-    }, [data]);
+    }, [data, formData.sectors]);
 
     const prepareCSVData = () => {
         const csvData: any[] = [];
@@ -309,23 +336,10 @@ const AssetsForm = () => {
                         Sectors:
                         <Select
                             name="sectors"
-                            options={sectorsOptions}
+                            options={groupedSectorsOptions}
                             className="basic-single mt-1"
                             classNamePrefix="select"
                             onChange={handleSectorChange}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                        Subsectors:
-                        <Select
-                            name="subsectors"
-                            options={formData.sectors ? subSectorsOptions[formData.sectors] || [] : []}
-                            className="basic-single mt-1"
-                            classNamePrefix="select"
-                            onChange={handleSubSectorChange}
-                            isDisabled={!formData.sectors}
                         />
                     </label>
                 </div>
@@ -374,10 +388,10 @@ const AssetsForm = () => {
             </form>
             {error && <p className="mt-4 text-red-600">{error}</p>}
             {data.length > 0 && (
-                <div className="flex flex-wrap justify-around mt-8">
+                <div className="flex justify-between">
                     <BarChart data={chartData} title={chartTitle} width={300} height={300} selectedYear={formData.year} />
-                    <PieChart data={pieData} title="CO2 Emissions by Sector" width={300} height={300} />
-                    <TimeSeriesChart data={timeSeriesData} title="Time Series of CO2 Emissions" width={300} height={300} selectedYear={formData.year} />
+                    <PieChart data={pieData} title={chartTitle} width={300} height={300} />
+                    <TimeSeriesChart data={timeSeriesData} title={chartTitle} width={300} height={300} selectedYear={formData.year} selectedSector={formData.sectors} />
                 </div>
             )}
             {data.length > 0 && <AssetsTable data={data} prepareCSVData={prepareCSVData} />}

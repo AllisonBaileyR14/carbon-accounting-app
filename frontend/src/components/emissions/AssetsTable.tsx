@@ -9,75 +9,44 @@ interface AssetsTableProps {
 
 const AssetsTable: React.FC<AssetsTableProps> = ({ data, prepareCSVData }) => {
     return (
-        <div style={{ maxHeight: '400px', overflowY: 'scroll', marginTop: '20px' }}>
-            <CSVLink
-                data={prepareCSVData()}
-                filename={`assets_data.csv`}
-                className="btn btn-primary"
-                style={{ marginBottom: '10px' }}
-            >
-                Export CSV
-            </CSVLink>
-            <table className="min-w-full bg-white">
-                <thead>
+        <div className="mt-4">
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Country</th>
-                        <th>Sector</th>
-                        <th>Asset Type</th>
-                        <th>Reporting Entity</th>
-                        <th>Year</th>
-                        <th>Activity</th>
-                        <th>Activity Units</th>
-                        <th>Capacity</th>
-                        <th>Capacity Factor</th>
-                        <th>Capacity Units</th>
-                        <th>Emissions Factor</th>
-                        <th>Emissions Factor Units</th>
-                        <th>CO2</th>
-                        <th>CH4</th>
-                        <th>N2O</th>
-                        <th>CO2e 20yr</th>
-                        <th>CO2e 100yr</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            ID
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Name
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Country
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Sector
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Subsector
+                        </th>
+                        {/* other headers */}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white divide-y divide-gray-200">
                     {data.map((asset) => (
-                        <React.Fragment key={asset.Id}>
-                            {asset.Emissions.map((emission) =>
-                                Object.entries(emission).map(([year, details]) => (
-                                    details.map((detail, index) => (
-                                        <tr key={`${year}-${index}`}>
-                                            <td>{asset.Id}</td>
-                                            <td>{asset.Name}</td>
-                                            <td>{asset.Country}</td>
-                                            <td>{asset.Sector}</td>
-                                            <td>{asset.AssetType}</td>
-                                            <td>{asset.ReportingEntity}</td>
-                                            <td>{year}</td>
-                                            <td>{detail.Activity !== null ? detail.Activity : 'N/A'}</td>
-                                            <td>{detail.ActivityUnits !== null ? detail.ActivityUnits : 'N/A'}</td>
-                                            <td>{detail.Capacity !== null ? detail.Capacity : 'N/A'}</td>
-                                            <td>{detail.CapacityFactor !== null ? detail.CapacityFactor : 'N/A'}</td>
-                                            <td>{detail.CapacityUnits !== null ? detail.CapacityUnits : 'N/A'}</td>
-                                            <td>{detail.EmissionsFactor !== null ? detail.EmissionsFactor : 'N/A'}</td>
-                                            <td>{detail.EmissionsFactorUnits !== null ? detail.EmissionsFactorUnits : 'N/A'}</td>
-                                            <td>{detail.co2 !== null ? detail.co2 : 'N/A'}</td>
-                                            <td>{detail.ch4 !== null ? detail.ch4 : 'N/A'}</td>
-                                            <td>{detail.n2o !== null ? detail.n2o : 'N/A'}</td>
-                                            <td>{detail.co2e_20yr !== null ? detail.co2e_20yr : 'N/A'}</td>
-                                            <td>{detail.co2e_100yr !== null ? detail.co2e_100yr : 'N/A'}</td>
-                                        </tr>
-                                    ))
-                                ))
-                            )}
-                        </React.Fragment>
+                        <tr key={asset.Id}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{asset.Id}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{asset.Name}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{asset.Country}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{asset.Sector}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{asset.Subsectors}</td>
+                            {/* other columns */}
+                        </tr>
                     ))}
                 </tbody>
             </table>
         </div>
     );
 };
+
 
 export default AssetsTable;

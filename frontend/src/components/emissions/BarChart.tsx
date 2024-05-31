@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 interface BarChartProps {
-    data: { country: string; co2: number }[];
+    data: { country: string; co2: number; sector: string; year: number }[];
     title: string;
     width: number;
     height: number;
@@ -28,7 +28,7 @@ const BarChart: React.FC<BarChartProps> = ({ data, title, width, height, selecte
 
         const x = d3
             .scaleBand()
-            .domain(data.map(d => d.country))
+            .domain(data.map(d => `${d.country} (${d.sector})`))
             .range([0, chartWidth])
             .padding(0.1);
 
@@ -62,14 +62,14 @@ const BarChart: React.FC<BarChartProps> = ({ data, title, width, height, selecte
             .enter()
             .append('rect')
             .attr('class', 'bar')
-            .attr('x', d => x(d.country)!)
-            .attr('y', d => y(d.co2))
+            .attr('x', d => x(`${d.country} (${d.sector})`) as number)
+            .attr('y', d => y(d.co2) as number)
             .attr('width', x.bandwidth())
             .attr('height', d => chartHeight - y(d.co2))
             .on('mouseover', (event, d) => {
                 tooltip
                     .style('display', 'block')
-                    .html(`Country: ${d.country}<br>CO2: ${d.co2}`);
+                    .html(`Country: ${d.country}<br>Sector: ${d.sector}<br>CO2: ${d.co2}`);
             })
             .on('mousemove', event => {
                 tooltip

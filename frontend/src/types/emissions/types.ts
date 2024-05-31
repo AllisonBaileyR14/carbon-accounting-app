@@ -56,6 +56,7 @@ export interface Asset {
     NativeId: string;
     Country: string;
     Sector: string;
+    Subsectors: string;
     AssetType: string;
     ReportingEntity: string;
     Emissions: Emission[];
